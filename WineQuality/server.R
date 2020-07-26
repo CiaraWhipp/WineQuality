@@ -18,6 +18,16 @@ shinyServer(function(input, output) {
 
   output$info <- renderText({
     # text describing the data set
+      "This app explores the combination of the red wine quality data set and the white wine quality data set. Both datasets can be found here"
+      
+      br()
+      #text describing the app
+      h2("About the Application")
+      "The Data Exlporation tab gives an overview of the data. The summary table for numeric variables, the quality distribution, and the quality frequency table can be viewed for just the red or white wine datasets or for the overall data set."
+      br()
+      "The Modeling tab contains 2 interactive models for predicting wine quality."
+      br()
+      "The Principle Components Analysis tab includes an interactive biplot to explore principal components in the wine quality data."
     })
 
 })
