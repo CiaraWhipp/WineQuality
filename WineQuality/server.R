@@ -1,5 +1,6 @@
 library(shiny)
 library(tidyverse)
+library(DT)
 
 #Read in and prepare data set to be used for the app
 # Read in white and red wine quality data sets 
@@ -15,19 +16,24 @@ wineQuality <- rbind(whiteWine, redWine)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-
-  output$info <- renderText({
-    # text describing the data set
-      "This app explores the combination of the red wine quality data set and the white wine quality data set. Both datasets can be found here"
-      
-      br()
-      #text describing the app
-      h2("About the Application")
-      "The Data Exlporation tab gives an overview of the data. The summary table for numeric variables, the quality distribution, and the quality frequency table can be viewed for just the red or white wine datasets or for the overall data set."
-      br()
-      "The Modeling tab contains 2 interactive models for predicting wine quality."
-      br()
-      "The Principle Components Analysis tab includes an interactive biplot to explore principal components in the wine quality data."
-    })
+    
+  #Filter data based on wine quality
+  getData <- reactive({
+      newData <- wineQuality %>% filter(type==input$type) %>% filter(quality==input$quality)
+  })
+  
+  #Create the data table 
+  output$table <- renderTable({
+      newData <- getData()
+      newData
+  })
+  
+  #Create a download button
+  output$download <- downloadHandler(
+    filename=paste0("wineQualityData-", Sys.Date(),".csv"),
+    content=function(file){
+      write.csv(data,file)
+    }
+  )
 
 })

@@ -9,6 +9,7 @@ dashboardPage(skin = "red",
   #define sidebar items
   dashboardSidebar(sidebarMenu(
     menuItem("About", tabname="about"),
+    menuItem("Data Set", tabname="set"),
     menuItem("Data Exploration", tabname="data"),
     menuItem("Modeling", tabname="model"),
     menuItem("Principle Components Analysis", tabname="pca")
@@ -18,7 +19,7 @@ dashboardPage(skin = "red",
   dashboardBody(
     tabItems(
       #About tab contents
-      tabItem(tabName="about", class="active",
+      tabItem(tabName="about",
         h2("About the Data"),
         "This app explores the combination of the red wine quality data set and the white wine quality data set. Both datasets can be found here:", br(),
         a(href="https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv", "Red wine data set"), br(),
@@ -44,8 +45,38 @@ dashboardPage(skin = "red",
         h2("About the Application"),
         "The ", strong("Data Exlporation tab"), " gives an overview of the data. The summary table for numeric variables, the quality distribution, and the quality frequency table can be viewed for just the red or white wine datasets or for the overall, combined data set.",
         br(),
+        "The ", strong("Data Set tab"), "contains the data set. It can be filtered based on wine type and quality.", br(),
         "The ", strong("Modeling tab") ," contains 2 interactive models for predicting wine quality.", br(),
         "The ", strong("Principle Components Analysis tab"), " includes an interactive biplot to explore principal components in the wine quality data."
+      ),
+      
+      #Data Set tab contents
+      tabItem(tabName="set",
+        fluidRow(
+          column(2,
+                 checkboxGroupInput("type", "Wine Type", selected=c("red", "white"),
+                                    choices=levels(as.factor(wineQuality$type))),
+                 checkboxGroupInput("quality", "Wine Quality", 
+                                      selected=c("3","4","5","6","7","8","9"),
+                         choices=levels(as.factor(wineQuality$quality))),
+                 downloadButton("download", "Download")),
+          column(10,tableOutput("table"))
+        )
+      ),
+      
+      #Data Exploration tab contents
+      tabItem(tabName="data"
+        
+      ),
+      
+      #Modeling tab contents
+      tabItem(tabName="model"
+        
+      ),
+      
+      #Principle Components Analysis tab contents
+      tabItem(tabName="pca"
+        
       )
     )
   )
