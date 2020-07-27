@@ -83,6 +83,10 @@ dashboardPage(skin = "red",
         h3("Histogram of Wine Quality for Wines by Type"),
         plotOutput("histType"),
         
+        #Correlation Plot
+        h3("Correlation Plot of the Physiochemical Properties of Wine"),
+        plotOutput("corrs")
+        
       ),
       
       #Modeling tab contents

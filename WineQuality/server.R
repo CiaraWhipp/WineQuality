@@ -1,6 +1,8 @@
 library(shiny)
 library(tidyverse)
 library(ggplot2)
+library(Hmisc)
+library(corrplot)
 
 #Read in and prepare data set to be used for the app
 # Read in white and red wine quality data sets 
@@ -61,6 +63,14 @@ shinyServer(function(input, output) {
       groupColors <- c(red="violetred4", white="rosybrown2")
       ggplot(wineQuality, aes(x=quality, fill=type)) +
         geom_histogram(position="dodge", bins=8) +
-          scale_fill_manual(values=groupColors)
+          scale_fill_manual(name="Wine Type", values=groupColors)
+  })
+  
+  #Correlation plot
+  output$corrs <- renderPlot({
+    data <- wineQuality %>% select(1:11)
+    correlations <- rcorr(as.matrix(data))
+    corr <- correlations[[1]]
+    corrplot(corr)
   })
 })
