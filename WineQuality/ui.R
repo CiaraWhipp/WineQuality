@@ -52,6 +52,7 @@ dashboardPage(skin = "red",
       
       #Data Set tab contents
       tabItem(tabName="set",
+        h2("The Data Set"),
         fluidRow(
           column(2,
                  checkboxGroupInput("type", "Wine Type", selected=c("red", "white"),
@@ -66,28 +67,32 @@ dashboardPage(skin = "red",
       
       #Data Exploration tab contents
       tabItem(tabName="data", class="active",
-        fluidRow(
-          column(2,
-                 checkboxGroupInput("typeB", "Wine Type", selected=c("red", "white"),
-                                    choices=levels(as.factor(wineQuality$type)))),
-          column(10,
-            h3("Frequency Table of Types of Wine"),
-            tableOutput("freqTabAll"),
-            h3("Frequency Table for Wine Quality"),
-            tableOutput("qualityFreqTab")
-            )
-        )
+        h2("Data Exploration"),
+        
+        #Frequency tables
+        h3("Frequency Table of Types of Wine"),
+        tableOutput("freqTabAll"),
+        
+        h3("Frequency Table for Wine Quality"),
+        tableOutput("qualityFreqTab"),
+        
+        #Histograms of wine quality
+        h3("Histogram of Wine Quality for All Wines"),
+        plotOutput("histAll"),
+        
+        h3("Histogram of Wine Quality for Wines by Type"),
+        plotOutput("histType"),
         
       ),
       
       #Modeling tab contents
-      tabItem(tabName="model"
-        
+      tabItem(tabName="model",
+        h2("Modeling")
       ),
       
       #Principle Components Analysis tab contents
-      tabItem(tabName="pca"
-        
+      tabItem(tabName="pca",
+        h2("Principle Components Analysis")
       )
     )
   )

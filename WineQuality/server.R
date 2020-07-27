@@ -1,6 +1,6 @@
 library(shiny)
 library(tidyverse)
-library(xtable)
+library(ggplot2)
 
 #Read in and prepare data set to be used for the app
 # Read in white and red wine quality data sets 
@@ -49,5 +49,18 @@ shinyServer(function(input, output) {
     colnames(table) = c("Wine Type", "Quality", "Frequency")
     table
   })
-
+  
+  #Histogram for all wines
+  output$histAll <- renderPlot({
+      ggplot(wineQuality, aes(x=quality)) +
+        geom_histogram(bins=8, fill="lightpink3")
+  })
+  
+  #Histogram for wines by type
+  output$histType <- renderPlot({
+      groupColors <- c(red="violetred4", white="rosybrown2")
+      ggplot(wineQuality, aes(x=quality, fill=type)) +
+        geom_histogram(position="dodge", bins=8) +
+          scale_fill_manual(values=groupColors)
+  })
 })
