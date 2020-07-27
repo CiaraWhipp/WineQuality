@@ -1,6 +1,6 @@
 library(shiny)
 library(tidyverse)
-library(DT)
+library(xtable)
 
 #Read in and prepare data set to be used for the app
 # Read in white and red wine quality data sets 
@@ -35,5 +35,19 @@ shinyServer(function(input, output) {
       write.csv(data,file)
     }
   )
+  
+  #Frequency table for wine types - combined data set
+  output$freqTabAll <- renderTable({
+    table <- as.data.frame(table(wineQuality$type))
+    colnames(table) = c("Wine Type", "Frequency")
+    table
+  })
+  
+  #Frequency table for quality
+  output$qualityFreqTab <- renderTable({
+    table <- as.data.frame(table(wineQuality$type, wineQuality$quality))
+    colnames(table) = c("Wine Type", "Quality", "Frequency")
+    table
+  })
 
 })

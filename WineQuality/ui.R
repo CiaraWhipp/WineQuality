@@ -60,12 +60,23 @@ dashboardPage(skin = "red",
                                       selected=c("3","4","5","6","7","8","9"),
                          choices=levels(as.factor(wineQuality$quality))),
                  downloadButton("download", "Download")),
-          column(10,tableOutput("table"))
+          column(10, tableOutput("table"))
         )
       ),
       
       #Data Exploration tab contents
-      tabItem(tabName="data"
+      tabItem(tabName="data", class="active",
+        fluidRow(
+          column(2,
+                 checkboxGroupInput("typeB", "Wine Type", selected=c("red", "white"),
+                                    choices=levels(as.factor(wineQuality$type)))),
+          column(10,
+            h3("Frequency Table of Types of Wine"),
+            tableOutput("freqTabAll"),
+            h3("Frequency Table for Wine Quality"),
+            tableOutput("qualityFreqTab")
+            )
+        )
         
       ),
       
