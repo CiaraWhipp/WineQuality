@@ -1,5 +1,6 @@
 library(shiny)
 library(shinydashboard)
+library(plotly)
 
 # Define UI for application that draws a histogram
 dashboardPage(skin = "red",
@@ -12,14 +13,14 @@ dashboardPage(skin = "red",
     menuItem("Data Set", tabname="set"),
     menuItem("Data Exploration", tabname="data"),
     menuItem("Modeling", tabname="model"),
-    menuItem("Principle Components Analysis", tabname="pca")
+    menuItem("Clustering", tabname="pca")
   )),
   
   #define the body of the app
   dashboardBody(
     tabItems(
       #About tab contents
-      tabItem(tabName="about",
+      tabItem(tabName="about", class="active",
         h2("About the Data"),
         "This app explores the combination of the red wine quality data set and the white wine quality data set. Both datasets can be found here:", br(),
         a(href="https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv", "Red wine data set"), br(),
@@ -44,28 +45,22 @@ dashboardPage(skin = "red",
         #text describing the app
         h2("About the Application"),
         "The ", strong("Data Set tab"), "contains the data set. It can be filtered based on wine type and quality.", br(),
-        "The ", strong("Data Exlporation tab"), " gives an overview of the data. The summary table for numeric variables, the quality distribution, and the quality frequency table can be viewed for just the red or white wine datasets or for the overall, combined data set.", br(),
-        "The ", strong("Modeling tab") ," contains 2 interactive models for predicting wine quality.", br(),
-        "The ", strong("Principle Components Analysis tab"), " includes an interactive biplot to explore principal components in the wine quality data."
+        "The ", strong("Data Exlporation tab"), " gives an overview of the data, including frequency tables, histograms for Wine Quality, a correlation plot of all the numeric variables, and distribution plots for each numeric variable.", br(),
+        "The ", strong("Modeling tab") ," contains a simple linear regression model, which the user can choose from 3 variables, and a bagged tree model, which the user can choose the number of trees.", br(),
+        "The ", strong("Clustering tab"), " includes a dendogram."
       ),
       
       #Data Set tab contents
-      tabItem(tabName="set",
+      tabItem(tabName="set", class="active",
         h2("The Data Set"),
-        fluidRow(
-          column(2,
-                 checkboxGroupInput("type", "Wine Type", selected=c("red", "white"),
-                                    choices=levels(as.factor(wineQuality$type))),
-                 checkboxGroupInput("quality", "Wine Quality", 
-                                      selected="5",
-                         choices=levels(as.factor(wineQuality$quality))),
-                 downloadButton("downloadData", "Download")),
-          column(10, dataTableOutput("table"))
-        )
+        checkboxGroupInput("type", "Wine Type", selected=c("red","white"),
+                           choices=c("red", "white")),
+        downloadLink("downloadData","Download Data"), br(),
+        dataTableOutput("table")
       ),
       
       #Data Exploration tab contents
-      tabItem(tabName="data",
+      tabItem(tabName="data", class="active",
         h2("Data Exploration"),
         
         #Frequency tables
@@ -80,11 +75,12 @@ dashboardPage(skin = "red",
         #Histograms of wine quality
         h3("Histogram of Wine Quality for All Wines"),
         "The histogram below shows the counts of wines for each quality level for both red and white wines. Notice, most wines are in the 5-7 range.", br(),
-        plotOutput("histAll"),
+        downloadLink("downloadPlot", "Download Plots"), br(),
+        plotlyOutput("histAll"),
         
         h3("Histogram of Wine Quality for Wines by Type"),
         "The histogram below breaks down the counts into red wines and white wines.", br(),
-        plotOutput("histType"),
+        plotlyOutput("histType"),
         
         #Correlation Plot
         h3("Correlation Plot of the Physiochemical Properties of Wine"),
@@ -94,7 +90,7 @@ dashboardPage(skin = "red",
         #Distributions of physiochemical variables
         h3("Distributions of Physiochemcial Variables"),
         "The plots below show the distributions of the physiochemical variables in the data set that contains both red wine and white wine.",
-        plotOutput("distr")
+        plotlyOutput("distr")
         
       ),
       
@@ -106,8 +102,8 @@ dashboardPage(skin = "red",
         #SLR
         h3("Simple Linear Regression"),
         "Below is an interactive linear model. The user can choose from density, volatile acidity, and chlorides.",
-        selectizeInput("lmCheck", "Linear Model Variables",
-                       selected=c("density"),
+        selectizeInput("lmCheck", "Linear Model Variable",
+                       selected="density",
                        choices=c("density", "volatile acidity", "chlorides")
         ),
         uiOutput("lmText"),
@@ -122,12 +118,14 @@ dashboardPage(skin = "red",
                     min=10, max=200, value=50, step=10
         ),
         uiOutput("bagText"),
-        tableOutput("bag")
+        tableOutput("bag"),
+        "Notice, RMSE stands for root mean square, and is calculated by:"
       ),
       
-      #Principle Components Analysis tab contents
-      tabItem(tabName="pca",
-        h2("Principle Components Analysis")
+      #Clustering tab contents
+      tabItem(tabName="pca", class="active",
+        h2("Clustering"),
+        plotOutput("dendo")
       )
     )
   )

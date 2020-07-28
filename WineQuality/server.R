@@ -5,6 +5,7 @@ library(ggplot2)
 library(Hmisc)
 library(corrplot)
 library(randomForest)
+library(plotly)
 
 #Read in and prepare data set to be used for the app
 # Read in white and red wine quality data sets 
@@ -23,7 +24,7 @@ shinyServer(function(input, output) {
     
   #Filter data based on wine quality
   getData <- reactive({
-      newData <- wineQuality %>% filter(type==input$type) %>% filter(quality==input$quality)
+      newData <- wineQuality %>% filter(type==input$type)
   })
   
   #Create the data table 
@@ -62,13 +63,13 @@ shinyServer(function(input, output) {
   })
   
   #Histogram for all wines
-  output$histAll <- renderPlot({
+  output$histAll <- renderPlotly({
       ggplot(wineQuality, aes(x=quality)) +
         geom_histogram(bins=8, fill="lightpink3")
   })
   
   #Histogram for wines by type
-  output$histType <- renderPlot({
+  output$histType <- renderPlotly({
       groupColors <- c(red="violetred4", white="rosybrown2")
       ggplot(wineQuality, aes(x=quality, fill=type)) +
         geom_histogram(position="dodge", bins=8) +
@@ -84,7 +85,7 @@ shinyServer(function(input, output) {
   })
   
   #Distributions
-  output$distr <- renderPlot({
+  output$distr <- renderPlotly({
     wineQuality %>% select(1:11) %>% pivot_longer(everything()) %>%
       ggplot(aes(x=value)) +
       facet_wrap(~ name, scales="free") + geom_density()
@@ -125,9 +126,15 @@ shinyServer(function(input, output) {
     RMSE <- sqrt(mean((bagPred-wineTest$quality)^2))
     RMSE
   })
-  
+  #Text
   output$bagText <- renderUI({
     paste0("The RMSE for the bagged tree model fitted with ", input$trees, " trees is:")
+  })
+  
+  #Clustering dendogram
+  output$dendo <- renderPlot({
+    hierClust <- hclust(dist(data.frame(wineQuality$quality)))
+    plot(hierClust, xlab="")
   })
   
   
