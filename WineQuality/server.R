@@ -1,5 +1,6 @@
 library(shiny)
 library(tidyverse)
+library(DT)
 library(ggplot2)
 library(Hmisc)
 library(corrplot)
@@ -25,28 +26,35 @@ shinyServer(function(input, output) {
   })
   
   #Create the data table 
-  output$table <- renderTable({
+  output$table <- renderDataTable({
       newData <- getData()
       newData
   })
   
-  #Create a download button
-  output$download <- downloadHandler(
-    filename=paste0("wineQualityData-", Sys.Date(),".csv"),
+  #Create a download buttons
+  output$downloadData <- downloadHandler(
+    filename=function(){paste0("wineQualityData", Sys.Date(),".csv")},
     content=function(file){
       write.csv(data,file)
     }
   )
   
+  output$downloadPlot <- downloadHandler(
+    filename=function(){paste0("wineQualityPlot", Sys.Date(),".png")},
+    content=function(file){
+      ggsave(file, plot=plotInput(), device ="png")
+      }
+  )
+  
   #Frequency table for wine types - combined data set
-  output$freqTabAll <- renderTable({
+  output$freqTabAll <- renderDataTable({
     table <- as.data.frame(table(wineQuality$type))
     colnames(table) = c("Wine Type", "Frequency")
     table
   })
   
   #Frequency table for quality
-  output$qualityFreqTab <- renderTable({
+  output$qualityFreqTab <- renderDataTable({
     table <- as.data.frame(table(wineQuality$type, wineQuality$quality))
     colnames(table) = c("Wine Type", "Quality", "Frequency")
     table
@@ -68,9 +76,33 @@ shinyServer(function(input, output) {
   
   #Correlation plot
   output$corrs <- renderPlot({
-    data <- wineQuality %>% select(1:11)
-    correlations <- rcorr(as.matrix(data))
+    dataCorrs <- wineQuality %>% select(1:11)
+    correlations <- rcorr(as.matrix(dataCorrs))
     corr <- correlations[[1]]
     corrplot(corr)
   })
+  
+  #Distributions
+  output$distr <- renderPlot({
+    wineQuality %>% select(1:11) %>% pivot_longer(everything()) %>%
+      ggplot(aes(x=value)) +
+      facet_wrap(~ name, scales="free") + geom_density()
+  })
+  
+  #Linear Model
+  #Text
+  output$lmText <- renderUI({
+    paste0("The following table shows an ANOVA test for the simple linear model that attempts to model wine quality with ",input$lmCheck,".")
+  })
+  #Model
+  output$lmModel <- renderTable({
+    if(input$lmCheck=="density"){fit <- lm(quality ~ density, data=wineQuality)
+    } else if(input$lmCheck=="volatile acidity"){
+      fit <- lm(quality ~ `volatile acidity`, data=wineQuality)
+    } else {
+      fit <- lm(quality ~ chlorides, data=wineQuality)
+    }
+    table(anova(fit))
+  })
+  
 })

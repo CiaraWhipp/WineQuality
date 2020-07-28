@@ -43,9 +43,8 @@ dashboardPage(skin = "red",
         
         #text describing the app
         h2("About the Application"),
-        "The ", strong("Data Exlporation tab"), " gives an overview of the data. The summary table for numeric variables, the quality distribution, and the quality frequency table can be viewed for just the red or white wine datasets or for the overall, combined data set.",
-        br(),
         "The ", strong("Data Set tab"), "contains the data set. It can be filtered based on wine type and quality.", br(),
+        "The ", strong("Data Exlporation tab"), " gives an overview of the data. The summary table for numeric variables, the quality distribution, and the quality frequency table can be viewed for just the red or white wine datasets or for the overall, combined data set.", br(),
         "The ", strong("Modeling tab") ," contains 2 interactive models for predicting wine quality.", br(),
         "The ", strong("Principle Components Analysis tab"), " includes an interactive biplot to explore principal components in the wine quality data."
       ),
@@ -58,40 +57,59 @@ dashboardPage(skin = "red",
                  checkboxGroupInput("type", "Wine Type", selected=c("red", "white"),
                                     choices=levels(as.factor(wineQuality$type))),
                  checkboxGroupInput("quality", "Wine Quality", 
-                                      selected=c("3","4","5","6","7","8","9"),
+                                      selected="5",
                          choices=levels(as.factor(wineQuality$quality))),
-                 downloadButton("download", "Download")),
-          column(10, tableOutput("table"))
+                 downloadButton("downloadData", "Download")),
+          column(10, dataTableOutput("table"))
         )
       ),
       
       #Data Exploration tab contents
-      tabItem(tabName="data", class="active",
+      tabItem(tabName="data",
         h2("Data Exploration"),
         
         #Frequency tables
         h3("Frequency Table of Types of Wine"),
-        tableOutput("freqTabAll"),
+        "When using this data set for analyses and prediction models, it is important to note the discrepancy in the number of red wines sampled (1599) versus the number of white wines sampled (4898).", br(),
+        dataTableOutput("freqTabAll"),
         
         h3("Frequency Table for Wine Quality"),
-        tableOutput("qualityFreqTab"),
+        "The table below shows the counts for the number of red wines and white wines in each quality level", br(),
+        dataTableOutput("qualityFreqTab"),
         
         #Histograms of wine quality
         h3("Histogram of Wine Quality for All Wines"),
+        "The histogram below shows the counts of wines for each quality level for both red and white wines. Notice, most wines are in the 5-7 range.", br(),
         plotOutput("histAll"),
         
         h3("Histogram of Wine Quality for Wines by Type"),
+        "The histogram below breaks down the counts into red wines and white wines.", br(),
         plotOutput("histType"),
         
         #Correlation Plot
         h3("Correlation Plot of the Physiochemical Properties of Wine"),
-        plotOutput("corrs")
+        "The correlation plot below shows a visual representation of the correlation between the physiochemical property variables. Blue circles indicate a positive correlation, and red circle indicate a negative correlation. The larger and darker the circle, the stronger the correlation. Notice alcohol and density appear to have the strongest correlation. Total sulfur dioxide and free sulfur dioxide also have a notable correlation - though, this correlation is to be expected.", br(),
+        plotOutput("corrs"),
+        
+        #Distributions of physiochemical variables
+        h3("Distributions of Physiochemcial Variables"),
+        "The plots below show the distributions of the physiochemical variables in the data set that contains both red wine and white wine.",
+        plotOutput("distr")
         
       ),
       
       #Modeling tab contents
-      tabItem(tabName="model",
-        h2("Modeling")
+      tabItem(tabName="model", class="active",
+        h2("Modeling"),
+        br(),
+        h3("Simple Linear Regression"),
+        "Below is an interactive linear model. The user can choose from density, volatile acidity, and chlorides.",
+        selectizeInput("lmCheck", "Linear Model Variables",
+                       selected=c("density"),
+                       choices=c("density", "volatile acidity", "chlorides")
+        ),
+        uiOutput("lmText"),
+        tableOutput("lmModel")
       ),
       
       #Principle Components Analysis tab contents
