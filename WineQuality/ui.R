@@ -102,6 +102,8 @@ dashboardPage(skin = "red",
       tabItem(tabName="model", class="active",
         h2("Modeling"),
         br(),
+        
+        #SLR
         h3("Simple Linear Regression"),
         "Below is an interactive linear model. The user can choose from density, volatile acidity, and chlorides.",
         selectizeInput("lmCheck", "Linear Model Variables",
@@ -109,7 +111,18 @@ dashboardPage(skin = "red",
                        choices=c("density", "volatile acidity", "chlorides")
         ),
         uiOutput("lmText"),
-        tableOutput("lmModel")
+        tableOutput("lmModel"),
+        br(),
+        
+        #Classification tree
+        h3("Classification Tree - Bagged Tree Model"),
+        "Below is a classification tree. The user can select the number of trees.",
+        br(),
+        sliderInput("trees", "Number of Trees to Fit",
+                    min=10, max=200, value=50, step=10
+        ),
+        uiOutput("bagText"),
+        tableOutput("bag")
       ),
       
       #Principle Components Analysis tab contents

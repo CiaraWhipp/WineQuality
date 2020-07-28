@@ -4,6 +4,7 @@ library(DT)
 library(ggplot2)
 library(Hmisc)
 library(corrplot)
+library(randomForest)
 
 #Read in and prepare data set to be used for the app
 # Read in white and red wine quality data sets 
@@ -104,5 +105,30 @@ shinyServer(function(input, output) {
     }
     table(anova(fit))
   })
+  
+  #Bagged Tree
+  output$bag <- renderTable({
+    wineQuality <- wineQuality %>% rename(fixedAcidity=`fixed acidity`, 
+                                          volatileAcidity=`volatile acidity`, 
+                                          citricAcid=`citric acid`, 
+                                          residualSugar=`residual sugar`, 
+                                          freeSulfurDioxide=`free sulfur dioxide`,
+                                          totalSulfurDioxide=`total sulfur dioxide`)
+    wineQuality$type <- as.factor(wineQuality$type)
+    train <- sample(1:nrow(wineQuality), size=nrow(wineQuality)*0.8)
+    test <- dplyr::setdiff(1:nrow(wineQuality), train)
+    wineTrain <- wineQuality[train,]
+    wineTest <- wineQuality[test,]
+    bagFit <- randomForest(quality ~ ., data=wineQuality, mtry=ncol(wineQuality)-1, 
+                            ntree=input$trees, importance=TRUE)
+    bagPred <- predict(bagFit, newdata=wineTest)
+    RMSE <- sqrt(mean((bagPred-wineTest$quality)^2))
+    RMSE
+  })
+  
+  output$bagText <- renderUI({
+    paste0("The RMSE for the bagged tree model fitted with ", input$trees, " trees is:")
+  })
+  
   
 })
